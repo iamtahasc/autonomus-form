@@ -1,2 +1,5 @@
 pymupdf
 reportlab
+fastapi
+uvicorn
+python-multipart
