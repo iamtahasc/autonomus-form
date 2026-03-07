@@ -10,13 +10,10 @@ from typing import Dict, Optional
 
 # Import existing logic
 # checking if they exist to avoid import errors during partial setup
-try:
-    from src.parser import PDFParser
-    from src.analyzer import FormAnalyzer
-    from src.generator import FormGenerator
-except ImportError:
-    # Fallback if running from a different context, though structure should allow this
-    pass
+# Import existing logic
+from src.parser import PDFParser
+from src.analyzer import FormAnalyzer
+from src.generator import FormGenerator
 
 app = FastAPI()
 
@@ -113,6 +110,78 @@ async def upload_file(background_tasks: BackgroundTasks, file: UploadFile = File
     background_tasks.add_task(process_pdf_task, task_id, file_path, file.filename)
     
     return {"task_id": task_id}
+
+@app.post("/analyze")
+async def analyze_file(file: UploadFile = File(...)):
+    """
+    Directly analyze a file and return the detected fields and structure.
+    Useful for debugging and verification.
+    """
+    task_id = str(uuid.uuid4())
+    temp_path = os.path.join(UPLOAD_DIR, f"analyze_{task_id}_{file.filename}")
+    
+    try:
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # Parse
+        pdf_parser = PDFParser(temp_path)
+        all_fields = []
+        all_text = []
+        all_visuals = []
+        
+        total_pages = len(pdf_parser.doc)
+        
+        for i in range(total_pages):
+            text_elements, visual_elements = pdf_parser.parse_page(i)
+            
+            # Convert to dicts for JSON response
+            all_text.extend([
+                {
+                    "text": t.text,
+                    "bbox": t.bbox,
+                    "page": t.page_num
+                } for t in text_elements
+            ])
+            
+            all_visuals.extend([
+                {
+                    "type": v.type,
+                    "bbox": v.bbox,
+                    "page": v.page_num
+                } for v in visual_elements
+            ])
+            
+            analyzer = FormAnalyzer(text_elements, visual_elements)
+            analyzer.detect_candidates()
+            analyzer.associate_labels()
+            
+            fields = analyzer.get_fields()
+            all_fields.extend([
+                {
+                    "name": f.name,
+                    "type": f.type.value,
+                    "bbox": f.bbox,
+                    "page": f.page_num,
+                    "label": f.associated_label
+                } for f in fields
+            ])
+            
+        pdf_parser.close()
+        
+        return {
+            "filename": file.filename,
+            "pages": total_pages,
+            "fields": all_fields,
+            "text_summary": all_text[:50], # Limit output size
+            "visual_summary": f"Found {len(all_visuals)} visual elements"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 @app.get("/status/{task_id}", response_model=TaskStatus)
 async def get_status(task_id: str):

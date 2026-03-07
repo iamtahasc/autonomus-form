@@ -53,21 +53,21 @@ class FormAnalyzer:
                         if 0.2 < ratio < 5.0:
                              self.candidates.append(FieldCandidate(FieldType.IMAGE, v.bbox, v.page_num))
                  
+                 # 3. Checkbox / Radio (Small & Square-ish)
+                 # Range: 8-55 px size, close to 1:1 ratio
+                 elif 8 < width < 55 and 8 < height < 55 and 0.5 < ratio < 1.8:
+                      # Distinguish Checkbox vs Radio by shape type if possible, else default Checkbox
+                      f_type = FieldType.RADIO if v.type == "curve" else FieldType.CHECKBOX
+                      self.candidates.append(FieldCandidate(f_type, v.bbox, v.page_num))
+                      
                  # 2. Text Box (Wide)
                  # Range: Width 20-500, Height 10-60
                  elif 20 < width < 500 and 10 < height < 60:
                       self.candidates.append(FieldCandidate(FieldType.TEXT, v.bbox, v.page_num))
                  
-                 # 3. Checkbox / Radio (Small & Square-ish)
-                 # Range: 6-40 px size, close to 1:1 ratio
-                 elif 6 < width < 45 and 6 < height < 45:
-                      if 0.6 < ratio < 1.4:
-                          # Distinguish Checkbox vs Radio by shape type if possible, else default Checkbox
-                          f_type = FieldType.RADIO if v.type == "curve" else FieldType.CHECKBOX
-                          self.candidates.append(FieldCandidate(f_type, v.bbox, v.page_num))
-                      elif ratio > 1.5:
-                          # Small text box (e.g. "Initials")
-                          self.candidates.append(FieldCandidate(FieldType.TEXT, v.bbox, v.page_num))
+                 elif 8 < width < 55 and 8 < height < 55 and ratio > 1.8:
+                      # Small text box (e.g. "Initials")
+                      self.candidates.append(FieldCandidate(FieldType.TEXT, v.bbox, v.page_num))
 
         # Run Cluster-based detection
         self._detect_line_clusters()  # Checkboxes from lines
@@ -299,9 +299,11 @@ class FormAnalyzer:
                 x0, y0, x1, y1 = c['bbox']
                 w, h = x1 - x0, y1 - y0
                 if w > 60 and h > 60:
-                     self.candidates.append(FieldCandidate(FieldType.IMAGE, (x0, y0, x1, y1), p_num))
-                elif w > 150 and h > 25:
-                     self.candidates.append(FieldCandidate(FieldType.TEXT, (x0, y0, x1, y1), p_num))
+                     if w < 550 and h < 750:
+                         self.candidates.append(FieldCandidate(FieldType.IMAGE, (x0, y0, x1, y1), p_num))
+                elif w > 30 and h > 12:
+                     if w < 550 and h < 60:
+                         self.candidates.append(FieldCandidate(FieldType.TEXT, (x0, y0, x1, y1), p_num))
 
     def _deduplicate_candidates(self):
         unique = []
@@ -414,7 +416,88 @@ class FormAnalyzer:
         while "__" in s: s = s.replace("__", "_")
         return s.strip("_")
 
+    def _group_comb_fields(self):
+        """Group adjacent small checkboxes into a single text comb field."""
+        boxes = [c for c in self.candidates if c.type in [FieldType.CHECKBOX, FieldType.TEXT]]
+        
+        pages = set(c.page_num for c in boxes)
+        for p_num in pages:
+            page_boxes = [c for c in boxes if c.page_num == p_num and c.type == FieldType.CHECKBOX]
+            page_boxes.sort(key=lambda c: (c.bbox[1], c.bbox[0]))
+            
+            visited = set()
+            clusters = []
+            
+            for box in page_boxes:
+                if id(box) in visited: continue
+                visited.add(id(box))
+                
+                cluster = [box]
+                
+                for other in page_boxes:
+                    if id(other) in visited: continue
+                    
+                    last_box = cluster[-1]
+                    b_w = last_box.bbox[2] - last_box.bbox[0]
+                    b_h = last_box.bbox[3] - last_box.bbox[1]
+                    o_w = other.bbox[2] - other.bbox[0]
+                    o_h = other.bbox[3] - other.bbox[1]
+                    
+                    y_diff = abs(last_box.bbox[1] - other.bbox[1])
+                    x_gap = other.bbox[0] - last_box.bbox[2]
+                    
+                    if abs(b_w - o_w) < 5 and abs(b_h - o_h) < 5 and y_diff < 10 and 0 <= x_gap < max(20, b_w * 1.5):
+                        cluster.append(other)
+                        visited.add(id(other))
+                
+                if len(cluster) >= 3:
+                     clusters.append(cluster)
+                     
+            for cluster in clusters:
+                 x0 = min(c.bbox[0] for c in cluster)
+                 y0 = min(c.bbox[1] for c in cluster)
+                 x1 = max(c.bbox[2] for c in cluster)
+                 y1 = max(c.bbox[3] for c in cluster)
+                 
+                 for c in cluster:
+                      if c in self.candidates:
+                           self.candidates.remove(c)
+                 
+                 self.candidates.append(FieldCandidate(FieldType.TEXT, (x0, y0, x1, y1), p_num))
+
+    def _shrink_text_fields(self):
+        """Shrink text fields so they don't overlap with existing PDF text labels."""
+        for c in self.candidates:
+            if c.type != FieldType.TEXT: continue
+            
+            cx0, cy0, cx1, cy1 = c.bbox
+            
+            for t in self.text_elements:
+                if t.page_num != c.page_num: continue
+                tx0, ty0, tx1, ty1 = t.bbox
+                
+                ix0, ix1 = max(cx0, tx0), min(cx1, tx1)
+                iy0, iy1 = max(cy0, ty0), min(cy1, ty1)
+                
+                if ix1 > ix0 and iy1 > iy0:
+                    c_w = cx1 - cx0
+                    
+                    # If label is on the left half of the box
+                    if tx0 < cx0 + c_w / 2:
+                         new_x0 = tx1 + 2
+                         if cx1 - new_x0 > 10: # Ensure valid field width remains
+                             c.bbox = (new_x0, cy0, cx1, cy1)
+                             cx0 = new_x0 # update for next iterations
+                    # If label is on the right half (e.g. units or hints inside the box)
+                    elif tx1 > cx0 + c_w / 2:
+                         new_x1 = tx0 - 2
+                         if new_x1 - cx0 > 10:
+                             c.bbox = (cx0, cy0, new_x1, cy1)
+                             cx1 = new_x1
+
     def get_fields(self) -> List[FieldCandidate]:
+        self._group_comb_fields()
+        self._shrink_text_fields()
         self._filter_text_overlaps()
         self._group_radios() 
         
