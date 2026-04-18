@@ -58,6 +58,10 @@ class FormAnalyzer:
                 group_lbl, _ = self._find_label(
                     field_bbox, v.page_num, field_type=FieldType.TEXT
                 )
+                
+                # 🔥 FIX: Skip lines without labels (likely decorative)
+                if not group_lbl:
+                    continue
 
                 self.candidates.append(
                     FieldCandidate(
@@ -92,10 +96,20 @@ class FormAnalyzer:
                 elif 20 < width < 500 and 10 < height < 60:
                     if self._has_text_over(v.bbox, v.page_num):
                         continue
+                    
+                    # 🔥 FIX: Skip very small boxes that are likely decorative or character cells
+                    if width < 25 or height < 15:
+                        continue
 
                     group_lbl, _ = self._find_label(
                         v.bbox, v.page_num, field_type=FieldType.TEXT
                     )
+                    
+                    # 🔥 FIX: Skip text fields without labels in header/footer regions
+                    # Check if this is in top 50px or bottom 50px of page (likely header/footer)
+                    # Assuming standard page height ~800px
+                    if not group_lbl and (v.bbox[1] < 50 or v.bbox[3] > 750):
+                        continue
 
                     self.candidates.append(
                         FieldCandidate(
@@ -108,6 +122,10 @@ class FormAnalyzer:
 
                     # square-ish
                     if 0.6 < ratio < 1.4:
+                        
+                        # 🔥 CRITICAL FIX: Filter out very small boxes (< 10px) - likely bullets/decorations
+                        if width < 10 or height < 10:
+                            continue
 
                         # 🔥 sequence detection (OTP / char boxes)
                         if id(v) in sequence_boxes:
@@ -117,7 +135,18 @@ class FormAnalyzer:
                             group_lbl, _ = self._find_label(
                                 v.bbox, v.page_num, field_type=FieldType.TEXT
                             )
-
+                            
+                            # 🔥 FIX: Sequence boxes should only be created if they have meaningful labels
+                            # Skip if label looks like option text (Mr., Ms., Dr., etc.)
+                            if group_lbl:
+                                # Check if label is actually option text, not a field label
+                                option_words = ['mr', 'ms', 'mrs', 'dr', 'prof', 'miss', 'master', 
+                                               'off', 'on', 'yes', 'no', 'na', 'n/a', 'm/s']
+                                label_lower = group_lbl.lower().strip()
+                                # Skip if label is short and matches option words
+                                if len(label_lower) < 15 and any(opt in label_lower for opt in option_words):
+                                    continue
+                            
                             self.candidates.append(
                                 FieldCandidate(
                                     FieldType.TEXT, v.bbox, v.page_num, label=group_lbl
@@ -138,6 +167,17 @@ class FormAnalyzer:
                             group_lbl, opt_lbl = self._find_label(
                                 v.bbox, v.page_num, field_type=f_type
                             )
+                            
+                            # 🔥 FIX: Skip checkboxes without meaningful labels or with inappropriate labels
+                            if not group_lbl and not opt_lbl:
+                                continue
+                            
+                            # Filter out checkboxes that captured non-field text
+                            if group_lbl and any(skip_word in group_lbl.lower() for skip_word in [
+                                'fields marked', 'mandatory', 'note', 'instruction', 
+                                'please read', 'important', 'declaration', 'terms'
+                            ]):
+                                continue
 
                             self.candidates.append(
                                 FieldCandidate(
@@ -188,9 +228,10 @@ class FormAnalyzer:
     def _find_sequence_boxes(self) -> set:
         """
         A box is part of a TEXT sequence only if:
-        - It has at least one direct neighbour box within 35px gap
+        - It has at least one direct neighbour box within 15px gap (reduced from 35px)
         - No meaningful text sits between them
         - They are on the same vertical band (center diff < 5px)
+        - The boxes are very small (< 20px) - typical for character input boxes
 
         A single isolated box = CHECKBOX (never a text sequence).
         """
@@ -200,8 +241,8 @@ class FormAnalyzer:
             v
             for v in self.visual_elements
             if v.type in ["rect", "path", "curve"]
-            and 6 < (v.bbox[2] - v.bbox[0]) < 45
-            and 6 < (v.bbox[3] - v.bbox[1]) < 45
+            and 6 < (v.bbox[2] - v.bbox[0]) < 25  # Reduced from 45 to 25
+            and 6 < (v.bbox[3] - v.bbox[1]) < 25  # Reduced from 45 to 25
             and (v.bbox[2] - v.bbox[0]) / ((v.bbox[3] - v.bbox[1]) + 0.001) > 0.6
         ]
 
@@ -217,15 +258,16 @@ class FormAnalyzer:
                 oh = other.bbox[3] - other.bbox[1]
                 oratio = ow / (oh + 0.001)
 
-                if not (6 < ow < 45 and 6 < oh < 45 and 0.6 < oratio < 1.4):
+                if not (6 < ow < 25 and 6 < oh < 25 and 0.6 < oratio < 1.4):  # Reduced from 45 to 25
                     continue
 
                 right_gap = other.bbox[0] - v.bbox[2]
                 v_center = (v.bbox[1] + v.bbox[3]) / 2
                 o_center = (other.bbox[1] + other.bbox[3]) / 2
 
+                # 🔥 FIX: Reduced gap from 35px to 15px - sequences should be tight
                 # must be to the right and on same row
-                if not (0 < right_gap < 35 and abs(v_center - o_center) < 5):
+                if not (0 < right_gap < 15 and abs(v_center - o_center) < 5):
                     continue
 
                 # no real text between them
@@ -259,8 +301,7 @@ class FormAnalyzer:
                     sequence_ids.add(id(v))
                     sequence_ids.add(id(other))
 
-        # ── Final check: sequence must have 2+ boxes ────────────────────
-        # Remove any box that ended up alone (shouldn't happen but safety net)
+        # ── Final check: sequence must have 3+ boxes (increased from 2) ─
         # Count how many sequence members share the same row on the same page
         from collections import defaultdict
 
@@ -274,10 +315,10 @@ class FormAnalyzer:
             key = (v.page_num, v_center)
             row_groups[key].add(id(v))
 
-        # only keep boxes that are in a group of 2 or more
+        # only keep boxes that are in a group of 3 or more (increased from 2)
         valid_sequence_ids = set()
         for key, group in row_groups.items():
-            if len(group) >= 2:
+            if len(group) >= 3:
                 valid_sequence_ids.update(group)
 
         return valid_sequence_ids
@@ -458,6 +499,33 @@ class FormAnalyzer:
         best_group_dist = float("inf")
         best_option_dist = float("inf")
         field_cy = (y1 + y2) / 2
+        
+        # 🔥 FIX: List of text patterns that should NOT be used as field labels
+        SKIP_LABEL_PATTERNS = [
+            'fields marked', 'mandatory', 'note:', 'instruction', 
+            'please read', 'important', 'declaration', 'terms',
+            'signature', 'date', 'page', 'form no', 'application no',
+            'folio', 'arn', 'ucri', 'kyc'
+        ]
+        
+        def is_valid_label(text: str) -> bool:
+            """Check if text is appropriate for a field label."""
+            text_lower = text.lower().strip()
+            
+            # Skip if too short (likely symbols)
+            if len(text_lower) < 2:
+                return False
+                
+            # Skip if it matches skip patterns
+            for pattern in SKIP_LABEL_PATTERNS:
+                if pattern in text_lower:
+                    return False
+            
+            # Skip if it's all caps and very long (likely a header)
+            if text_lower.isupper() and len(text_lower) > 30:
+                return False
+            
+            return True
 
         for t in self.text_elements:
             if t.page_num != page_num:
@@ -474,6 +542,8 @@ class FormAnalyzer:
             # 1. ABOVE
             if ty2 <= y1 and (y1 - ty2) <= ABOVE_GAP:
                 if tx1 < x2 + 10 and tx2 > x1 - 10:
+                    if not is_valid_label(text):
+                        continue
                     dist = (y1 - ty2) + 20  # Add penalty so inline left labels win if present
                     if dist < best_group_dist:
                         best_group_dist = dist
@@ -482,6 +552,8 @@ class FormAnalyzer:
             # 2. LEFT
             if tx2 <= x1 and (x1 - tx2) <= LEFT_MAX:
                 if abs(field_cy - text_cy) <= VERTICAL_BAND:
+                    if not is_valid_label(text):
+                        continue
                     dist = x1 - tx2
                     if is_checkbox:
                         looks_like_label = (
@@ -531,6 +603,8 @@ class FormAnalyzer:
 
                 if tx2 <= x1 and (x1 - tx2) <= FALLBACK_LEFT:
                     if abs(field_cy - text_cy) <= VERTICAL_BAND:
+                        if not is_valid_label(text):
+                            continue
                         is_label = text.endswith(":") or bool(
                             re.search(
                                 r"(belongs|tick|please|option|specify|type|mode|"
