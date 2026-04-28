@@ -36,6 +36,8 @@ class FormAnalyzer:
 
     def detect_candidates(self):
         """Detect potential fields based on visual primitives with improved heuristics."""
+        
+        self._detect_box_from_lines()
 
         sequence_boxes = self._find_sequence_boxes()
 
@@ -123,8 +125,8 @@ class FormAnalyzer:
                     # square-ish
                     if 0.6 < ratio < 1.4:
                         
-                        # 🔥 CRITICAL FIX: Filter out very small boxes (< 10px) - likely bullets/decorations
-                        if width < 10 or height < 10:
+                        # 🔥 CRITICAL FIX: Filter out very small boxes (< 8px) - likely bullets/decorations
+                        if width < 8 or height < 8:
                             continue
 
                         # 🔥 sequence detection (OTP / char boxes)
@@ -169,8 +171,9 @@ class FormAnalyzer:
                             )
                             
                             # 🔥 FIX: Skip checkboxes without meaningful labels or with inappropriate labels
-                            if not group_lbl and not opt_lbl:
-                                continue
+                            # Actually, allow checkboxes without labels (they could be in grids)
+                            # if not group_lbl and not opt_lbl:
+                            #     continue
                             
                             # Filter out checkboxes that captured non-field text
                             if group_lbl and any(skip_word in group_lbl.lower() for skip_word in [
@@ -225,6 +228,79 @@ class FormAnalyzer:
         self._filter_text_overlaps()
         self.associate_labels()
 
+    def _detect_box_from_lines(self):
+        """Find rectangles formed by 4 separate lines and convert them to 'rect' visual elements."""
+        lines = [v for v in self.visual_elements if v.type == 'line']
+        if len(lines) < 4:
+            return
+            
+        from collections import defaultdict
+        page_lines = defaultdict(list)
+        for line in lines:
+            page_lines[line.page_num].append(line)
+            
+        new_rects = []
+        lines_to_remove = set()
+        
+        for page_num, p_lines in page_lines.items():
+            h_lines = []
+            v_lines = []
+            for l in p_lines:
+                w = l.bbox[2] - l.bbox[0]
+                h = l.bbox[3] - l.bbox[1]
+                if w >= h * 2:
+                    h_lines.append(l)
+                elif h >= w * 2:
+                    v_lines.append(l)
+                    
+            for i in range(len(h_lines)):
+                if id(h_lines[i]) in lines_to_remove: continue
+                for j in range(i+1, len(h_lines)):
+                    if id(h_lines[j]) in lines_to_remove: continue
+                    h1, h2 = h_lines[i], h_lines[j]
+                    
+                    w1 = h1.bbox[2] - h1.bbox[0]
+                    w2 = h2.bbox[2] - h2.bbox[0]
+                    
+                    # Check if they are similar width and horizontally aligned
+                    if abs(w1 - w2) < 5 and abs(h1.bbox[0] - h2.bbox[0]) < 5:
+                        dist = abs(h1.bbox[1] - h2.bbox[1])
+                        # If distance is similar to width, we might have a square
+                        if abs(dist - w1) < 8 and 6 < w1 < 45:
+                            box_x0 = min(h1.bbox[0], h2.bbox[0])
+                            box_x1 = max(h1.bbox[2], h2.bbox[2])
+                            box_y0 = min(h1.bbox[1], h2.bbox[1])
+                            box_y1 = max(h1.bbox[1], h2.bbox[1])
+                            
+                            left_line = None
+                            right_line = None
+                            
+                            for vl in v_lines:
+                                if id(vl) in lines_to_remove: continue
+                                # check if vertical line connects the two horizontal lines
+                                if abs(vl.bbox[0] - box_x0) < 5 and vl.bbox[1] - 5 <= box_y0 and vl.bbox[3] + 5 >= box_y1:
+                                    left_line = vl
+                                if abs(vl.bbox[2] - box_x1) < 5 and vl.bbox[1] - 5 <= box_y0 and vl.bbox[3] + 5 >= box_y1:
+                                    right_line = vl
+                                    
+                            if left_line and right_line:
+                                new_rect = VisualElement(
+                                    type="rect",
+                                    bbox=(box_x0, box_y0, box_x1, box_y1),
+                                    stroke_color=h1.stroke_color,
+                                    fill_color=None,
+                                    line_width=h1.line_width,
+                                    page_num=page_num
+                                )
+                                new_rects.append(new_rect)
+                                lines_to_remove.update([id(h1), id(h2), id(left_line), id(right_line)])
+                                break # h1 is used
+                                
+        if new_rects:
+            # remove the lines that formed boxes
+            self.visual_elements = [v for v in self.visual_elements if id(v) not in lines_to_remove]
+            self.visual_elements.extend(new_rects)
+
     def _find_sequence_boxes(self) -> set:
         """
         A box is part of a TEXT sequence only if:
@@ -266,8 +342,8 @@ class FormAnalyzer:
                 o_center = (other.bbox[1] + other.bbox[3]) / 2
 
                 # 🔥 FIX: Reduced gap from 35px to 15px - sequences should be tight
-                # must be to the right and on same row
-                if not (0 < right_gap < 15 and abs(v_center - o_center) < 5):
+                # must be to the right and on same row (allow touching boxes: right_gap >= -1)
+                if not (-1 <= right_gap <= 15 and abs(v_center - o_center) < 5):
                     continue
 
                 # no real text between them
@@ -500,12 +576,10 @@ class FormAnalyzer:
         best_option_dist = float("inf")
         field_cy = (y1 + y2) / 2
         
-        # 🔥 FIX: List of text patterns that should NOT be used as field labels
         SKIP_LABEL_PATTERNS = [
             'fields marked', 'mandatory', 'note:', 'instruction', 
             'please read', 'important', 'declaration', 'terms',
-            'signature', 'date', 'page', 'form no', 'application no',
-            'folio', 'arn', 'ucri', 'kyc'
+            'page '
         ]
         
         def is_valid_label(text: str) -> bool:
@@ -721,14 +795,15 @@ class FormAnalyzer:
                     text = t.text.strip()
                     if not text or len(text) < 2:
                         continue
-                    # text is between the two segments horizontally
-                    if tx1 >= prev.bbox[2] and tx2 <= curr.bbox[0]:
+                    # relax horizontal bounds by 15px to account for text bounding box padding
+                    if tx1 >= prev.bbox[2] - 15 and tx2 <= curr.bbox[0] + 15:
                         y_center_field = (prev.bbox[1] + prev.bbox[3]) / 2
                         text_cy = (ty1 + ty2) / 2
-                        if abs(y_center_field - text_cy) < 10:
-                            # looks like a label word between segments
-                            # e.g. "District" between city and district fields
-                            if len(text) > 3 and not re.match(r"^[X\s\(\)]+$", text):
+                        # relax vertical alignment check to 20px
+                        if abs(y_center_field - text_cy) < 20:
+                            # looks like a label word between segments (e.g. "Age:", "Sex:", "District")
+                            # reduce length check from >3 to >=2
+                            if len(text) >= 2 and not re.match(r"^[X\s\(\)\.\_\-]+$", text):
                                 text_label_between = True
                                 break
 

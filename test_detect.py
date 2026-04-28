@@ -16,7 +16,7 @@ def main():
     a.detect_candidates()
     print("--- Detected Fields ---")
     for f in a.get_fields():
-        print(f.type.value, f.bbox, f.label)
+        print(f.type.value, f.bbox, f.display_label)
 
 if __name__ == "__main__":
     main()

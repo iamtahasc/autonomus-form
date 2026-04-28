@@ -1,0 +1,821 @@
+[
+  {
+    "label": "Address Type*",
+    "option_label": "Residential/Business",
+    "display_label": "Address Type* \u2014 Residential/Business",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      125.04000091552734,
+      655.9199829101562,
+      135.1199951171875,
+      666.1199951171875
+    ]
+  },
+  {
+    "label": "Residential/Business",
+    "option_label": "Residential",
+    "display_label": "Residential/Business \u2014 Residential",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      228.95999145507812,
+      656.52001953125,
+      239.04000854492188,
+      666.8399658203125
+    ]
+  },
+  {
+    "label": "Residential",
+    "option_label": "Business",
+    "display_label": "Residential \u2014 Business",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      306.239990234375,
+      656.52001953125,
+      316.32000732421875,
+      666.8399658203125
+    ]
+  },
+  {
+    "label": "Registered Office",
+    "option_label": "Unspecified",
+    "display_label": "Registered Office \u2014 Unspecified",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      464.1600036621094,
+      655.9199829101562,
+      474.239990234375,
+      666.1199951171875
+    ]
+  },
+  {
+    "label": null,
+    "option_label": "A \u2014 Aadhaar Card",
+    "display_label": "A \u2014 Aadhaar Card",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      63.720001220703125,
+      399.0,
+      76.08000183105469,
+      411.3599853515625
+    ]
+  },
+  {
+    "label": "B \u2014 Passport Number",
+    "option_label": "D \u2014Driving License",
+    "display_label": "B \u2014 Passport Number \u2014 D \u2014Driving License",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      63.720001220703125,
+      448.32000732421875,
+      76.08000183105469,
+      460.67999267578125
+    ]
+  },
+  {
+    "label": "C \u2014 Voter ID Card",
+    "option_label": "D \u2014Driving License",
+    "display_label": "C \u2014 Voter ID Card \u2014 D \u2014Driving License",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      63.720001220703125,
+      465.5999755859375,
+      76.08000183105469,
+      477.96002197265625
+    ]
+  },
+  {
+    "label": "D \u2014Driving License",
+    "option_label": "F \u2014 NPR",
+    "display_label": "D \u2014Driving License \u2014 F \u2014 NPR",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      63.720001220703125,
+      483.3599853515625,
+      76.08000183105469,
+      495.72003173828125
+    ]
+  },
+  {
+    "label": "E \u2014NREGA Job Card",
+    "option_label": "Z \u2014Others",
+    "display_label": "E \u2014NREGA Job Card \u2014 Z \u2014Others",
+    "type": "checkbox",
+    "page": 1,
+    "bbox": [
+      63.720001220703125,
+      500.4000244140625,
+      76.08000183105469,
+      512.8800048828125
+    ]
+  },
+  {
+    "label": "Applicant Photo",
+    "option_label": null,
+    "display_label": "Applicant Photo",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      451.67999267578125,
+      327.6399841308594,
+      541.5599975585938,
+      350.11998412013054
+    ]
+  },
+  {
+    "label": "Line 2",
+    "option_label": null,
+    "display_label": "Line 2",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      97.55999755859375,
+      577.9600219726562,
+      541.0800170898438,
+      600.3200073242188
+    ]
+  },
+  {
+    "label": "Line 2",
+    "option_label": null,
+    "display_label": "Line 2",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      98.63999938964844,
+      595.8399658203125,
+      541.3200073242188,
+      618.0799658149481
+    ]
+  },
+  {
+    "label": "Application Form (For Individuals Only)",
+    "option_label": null,
+    "display_label": "Application Form (For Individuals Only)",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      122.7890396118164,
+      94.72000122070312,
+      247.9199981689453,
+      123.68000793457031
+    ]
+  },
+  {
+    "label": "PAN*",
+    "option_label": null,
+    "display_label": "PAN*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      83.87999725341797,
+      172.0,
+      232.32000732421875,
+      194.48001098632812
+    ]
+  },
+  {
+    "label": "(same as ID proof)",
+    "option_label": null,
+    "display_label": "(same as ID proof)",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      169.79998779296875,
+      196.0,
+      431.03997802734375,
+      218.36001586914062
+    ]
+  },
+  {
+    "label": "(if any)",
+    "option_label": null,
+    "display_label": "(if any)",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      169.79998779296875,
+      214.0,
+      431.03997802734375,
+      236.24000549316406
+    ]
+  },
+  {
+    "label": "Fathers/Spouse\u2019s Name*",
+    "option_label": null,
+    "display_label": "Fathers/Spouse\u2019s Name*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      170.39999389648438,
+      231.04000854492188,
+      431.5199890136719,
+      253.40000915527344
+    ]
+  },
+  {
+    "label": "Other",
+    "option_label": null,
+    "display_label": "Other",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      288.4800109863281,
+      299.08001708984375,
+      423.4800109863281,
+      321.55999755859375
+    ]
+  },
+  {
+    "label": "XXXX XXXX",
+    "option_label": null,
+    "display_label": "XXXX XXXX",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      232.44000244140625,
+      391.72003173828125,
+      278.5199890136719,
+      414.1999816894531
+    ]
+  },
+  {
+    "label": "B \u2014 Passport Number",
+    "option_label": null,
+    "display_label": "B \u2014 Passport Number",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      187.6800079345703,
+      412.3599853515625,
+      328.55999755859375,
+      434.8399963378906
+    ]
+  },
+  {
+    "label": "XXXX XXXX",
+    "option_label": null,
+    "display_label": "XXXX XXXX",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      186.24000549316406,
+      427.96002197265625,
+      327.239990234375,
+      450.44000244140625
+    ]
+  },
+  {
+    "label": "D \u2014Driving License",
+    "option_label": null,
+    "display_label": "D \u2014Driving License",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      187.20001220703125,
+      446.08001708984375,
+      328.08001708984375,
+      468.55999755859375
+    ]
+  },
+  {
+    "label": "E \u2014NREGA Job Card",
+    "option_label": null,
+    "display_label": "E \u2014NREGA Job Card",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      187.20001220703125,
+      463.239990234375,
+      328.08001708984375,
+      485.72003173828125
+    ]
+  },
+  {
+    "label": "F \u2014 NPR",
+    "option_label": null,
+    "display_label": "F \u2014 NPR",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      188.04000854492188,
+      480.27996826171875,
+      328.08001708984375,
+      502.760009765625
+    ]
+  },
+  {
+    "label": "Z \u2014Others",
+    "option_label": null,
+    "display_label": "Z \u2014Others",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      188.04000854492188,
+      497.44000244140625,
+      328.91998291015625,
+      519.9199829101562
+    ]
+  },
+  {
+    "label": "F \u2014 NPR",
+    "option_label": null,
+    "display_label": "F \u2014 NPR",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      188.1410675048828,
+      513.4000244140625,
+      328.3600158691406,
+      536.9600219726562
+    ]
+  },
+  {
+    "label": "Normal",
+    "option_label": null,
+    "display_label": "Normal",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      142.67288208007812,
+      159.04000854492188,
+      551.4000244140625,
+      181.52000427246094
+    ]
+  },
+  {
+    "label": "2. Address Details",
+    "option_label": null,
+    "display_label": "2. Address Details",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      206.23507690429688,
+      564.8800048828125,
+      543.47998046875,
+      587.3599853515625
+    ]
+  },
+  {
+    "label": "Identification Number",
+    "option_label": null,
+    "display_label": "Identification Number",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      141.2242431640625,
+      535.0,
+      551.2799682617188,
+      557.239990234375
+    ]
+  },
+  {
+    "label": "State*",
+    "option_label": null,
+    "display_label": "State*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      526.0197143554688,
+      666.52001953125,
+      551.1600341796875,
+      689.0
+    ]
+  },
+  {
+    "label": "Registered Office",
+    "option_label": null,
+    "display_label": "Registered Office",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      392.8800048828125,
+      679.5999755859375,
+      444.760009765625,
+      701.8399658203125
+    ]
+  },
+  {
+    "label": "State*",
+    "option_label": null,
+    "display_label": "State*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      141.72000122070312,
+      636.2799682617188,
+      280.55999755859375,
+      658.5199682563543
+    ]
+  },
+  {
+    "label": "Country*",
+    "option_label": null,
+    "display_label": "Country*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      324.239990234375,
+      636.2799682617188,
+      463.08001708984375,
+      658.5199682563543
+    ]
+  },
+  {
+    "label": "City/Town/Village*",
+    "option_label": null,
+    "display_label": "City/Town/Village*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      141.36000061035156,
+      619.1199951171875,
+      280.08001708984375,
+      641.3599951118231
+    ]
+  },
+  {
+    "label": "District",
+    "option_label": null,
+    "display_label": "District",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      319.20001220703125,
+      619.1199951171875,
+      425.4000244140625,
+      641.3599853515625
+    ]
+  },
+  {
+    "label": "Pin Code*",
+    "option_label": null,
+    "display_label": "Pin Code*",
+    "type": "text",
+    "page": 1,
+    "bbox": [
+      471.239990234375,
+      619.1199951171875,
+      542.1600341796875,
+      641.3599951118231
+    ]
+  },
+  {
+    "label": "City/Town/Village*",
+    "option_label": null,
+    "display_label": "City/Town/Village*",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      140.04000854492188,
+      97.83999633789062,
+      280.91998291015625,
+      120.31999206542969
+    ]
+  },
+  {
+    "label": "District",
+    "option_label": null,
+    "display_label": "District",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      312.1199951171875,
+      97.83999633789062,
+      425.8800048828125,
+      120.79999542236328
+    ]
+  },
+  {
+    "label": "State*",
+    "option_label": null,
+    "display_label": "State*",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      139.3199920654297,
+      114.75999450683594,
+      280.20001220703125,
+      137.24000549316406
+    ]
+  },
+  {
+    "label": "Country*",
+    "option_label": null,
+    "display_label": "Country*",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      323.1600036621094,
+      114.75999450683594,
+      423.8800048828125,
+      137.24000549316406
+    ]
+  },
+  {
+    "label": "XXXX XXXX",
+    "option_label": null,
+    "display_label": "XXXX XXXX",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      231.36001586914062,
+      170.3199920654297,
+      277.32000732421875,
+      192.79998779296875
+    ]
+  },
+  {
+    "label": "XXXX XXXX",
+    "option_label": null,
+    "display_label": "XXXX XXXX",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      185.27999877929688,
+      204.16000366210938,
+      326.1600036621094,
+      226.63998413085938
+    ]
+  },
+  {
+    "label": "D \u2014Driving License",
+    "option_label": null,
+    "display_label": "D \u2014Driving License",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      186.24000549316406,
+      221.32000732421875,
+      327.1199951171875,
+      243.67999267578125
+    ]
+  },
+  {
+    "label": "(Expiry",
+    "option_label": null,
+    "display_label": "(Expiry",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      440.4000244140625,
+      221.32000732421875,
+      541.800048828125,
+      243.67999267578125
+    ]
+  },
+  {
+    "label": "State*",
+    "option_label": null,
+    "display_label": "State*",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      526.3383178710938,
+      139.47999572753906,
+      552.9600219726562,
+      162.20001220703125
+    ]
+  },
+  {
+    "label": "Z\u2014Others",
+    "option_label": null,
+    "display_label": "Z\u2014Others",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      181.17520141601562,
+      297.0400085449219,
+      553.199951171875,
+      319.760009765625
+    ]
+  },
+  {
+    "label": "Email ID*",
+    "option_label": null,
+    "display_label": "Email ID*",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      119.63999938964844,
+      330.5199890136719,
+      533.1600341796875,
+      352.8800048828125
+    ]
+  },
+  {
+    "label": "Mobile No. *",
+    "option_label": null,
+    "display_label": "Mobile No. *",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      121.55999755859375,
+      349.5999755859375,
+      284.5199890136719,
+      372.08001708984375
+    ]
+  },
+  {
+    "label": "(Off)",
+    "option_label": null,
+    "display_label": "(Off)",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      119.63999938964844,
+      368.55999755859375,
+      284.0400085449219,
+      390.91998291015625
+    ]
+  },
+  {
+    "label": "(Res)",
+    "option_label": null,
+    "display_label": "(Res)",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      357.8399963378906,
+      368.55999755859375,
+      522.1199951171875,
+      390.91998291015625
+    ]
+  },
+  {
+    "label": "Identification Number",
+    "option_label": null,
+    "display_label": "Identification Number",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      144.8147430419922,
+      317.55999755859375,
+      552.9600219726562,
+      339.91998291015625
+    ]
+  },
+  {
+    "label": "Mobile No. *",
+    "option_label": null,
+    "display_label": "Mobile No. *",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      331.31890869140625,
+      381.1600036621094,
+      553.0800170898438,
+      403.27996826171875
+    ]
+  },
+  {
+    "label": "Tel",
+    "option_label": null,
+    "display_label": "Tel",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      170.1736602783203,
+      400.0,
+      297.7200012207031,
+      422.5999755859375
+    ]
+  },
+  {
+    "label": "the best of my/our knowledge and belief and I/we under-take to inform you of any",
+    "option_label": null,
+    "display_label": "the best of my/our knowledge and belief and I/we under-take to inform you of any",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      389.2010498046875,
+      417.5199890136719,
+      447.1600036621094,
+      439.760009765625
+    ]
+  },
+  {
+    "label": "with passcode and as applicable, with KRA and other Intermediaries with whom I",
+    "option_label": null,
+    "display_label": "with passcode and as applicable, with KRA and other Intermediaries with whom I",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      95.04279327392578,
+      555.1600341796875,
+      553.4400024414062,
+      577.8800048828125
+    ]
+  },
+  {
+    "label": "PLACE:",
+    "option_label": null,
+    "display_label": "PLACE:",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      159.49606323242188,
+      575.5599975585938,
+      553.3200073242188,
+      598.0399780273438
+    ]
+  },
+  {
+    "label": "5. For Office Use Only",
+    "option_label": null,
+    "display_label": "5. For Office Use Only",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      393.2785949707031,
+      593.199951171875,
+      552.9600219726562,
+      615.6799926757812
+    ]
+  },
+  {
+    "label": "Product                                                  Service                                                             Strategy",
+    "option_label": null,
+    "display_label": "Product                                                  Service                                                             Strategy",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      264.5430603027344,
+      610.8399658203125,
+      382.8399963378906,
+      633.0800170898438
+    ]
+  },
+  {
+    "label": "Emp. Designation",
+    "option_label": null,
+    "display_label": "Emp. Designation",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      222.93727111816406,
+      681.760009765625,
+      552.9600219726562,
+      704.0
+    ]
+  },
+  {
+    "label": "Institution Name and Stamp",
+    "option_label": null,
+    "display_label": "Institution Name and Stamp",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      59.63999938964844,
+      737.4400024414062,
+      552.9600219726562,
+      759.9199829101562
+    ]
+  },
+  {
+    "label": "Z\u2014Others",
+    "option_label": null,
+    "display_label": "Z\u2014Others",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      185.8800048828125,
+      275.44000244140625,
+      324.5999755859375,
+      297.68000243604183
+    ]
+  },
+  {
+    "label": "B \u2014 Passport Number",
+    "option_label": null,
+    "display_label": "B \u2014 Passport Number",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      187.20001220703125,
+      189.63998413085938,
+      326.0400085449219,
+      211.87998412549496
+    ]
+  },
+  {
+    "label": "Registered Office",
+    "option_label": null,
+    "display_label": "Registered Office",
+    "type": "text",
+    "page": 2,
+    "bbox": [
+      442.55999755859375,
+      187.95999145507812,
+      542.2799682617188,
+      210.32000732421875
+    ]
+  }
+]

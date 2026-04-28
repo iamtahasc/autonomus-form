@@ -39,7 +39,7 @@ def main():
     fields = analyzer.get_fields()
     print("--- Detected Fields ---")
     for f in fields:
-        print(f"Type: {f.type.value}, Name: {f.name}, Label: {f.associated_label}, BBox: {f.bbox}")
+        print(f"Type: {f.type.value}, Name: {f.name}, Label: {f.display_label}, BBox: {f.bbox}")
 
 if __name__ == "__main__":
     main()

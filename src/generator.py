@@ -16,15 +16,27 @@ class FormGenerator:
         return field.type == FieldType.TEXT and 6 < w < 45 and 6 < h < 45
 
     def _make_base_name(self, field) -> str:
-        """Generate coordinate-based unique name."""
-        return (
-            f"{field.type.value}"
-            f"_p{field.page_num}"
-            f"_x{int(field.bbox[0])}"
-            f"_y{int(field.bbox[1])}"
-            f"_w{int(field.bbox[2] - field.bbox[0])}"
-            f"_h{int(field.bbox[3] - field.bbox[1])}"
-        )
+        """Generate label-based unique name for the field."""
+        # Try to get a meaningful name from label
+        label = field.label or field.option_label or field.display_label or ""
+        
+        if label:
+            # Clean the label to make it snake_case
+            clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', label.strip())
+            clean_name = re.sub(r'_+', '_', clean_name)
+            base_name = clean_name.strip('_').lower()
+            if not base_name:
+                base_name = 'field'
+        else:
+            # Fallback to coordinate-based name if no label
+            base_name = (
+                f"field"
+                f"_p{field.page_num}"
+                f"_x{int(field.bbox[0])}"
+                f"_y{int(field.bbox[1])}"
+            )
+        
+        return base_name
 
     def generate(self, input_path: str, output_path: str, fields: List[FieldCandidate]):
         doc = fitz.open(input_path)
@@ -36,7 +48,7 @@ class FormGenerator:
         for field in fields:
             base = self._make_base_name(field)
             unique = base
-            counter = 1
+            counter = 2
             while unique in used_names:
                 unique = f"{base}_{counter}"
                 counter += 1

@@ -138,12 +138,12 @@ def create_non_fillable_form(filename):
     c.drawString(500, 400, "Price")
     
     # Row 1
-    c.rect(400, 380, 40, 15)
+    c.rect(400, 380, 15, 15) # Checkbox without label
     c.rect(450, 380, 40, 15)
     c.rect(500, 380, 40, 15)
     
     # Row 2
-    c.rect(400, 360, 40, 15)
+    c.rect(400, 360, 15, 15) # Checkbox without label
     c.rect(450, 360, 40, 15)
     c.rect(500, 360, 40, 15)
     c.rect(72, 440, 100, 100) # 100x100 box
