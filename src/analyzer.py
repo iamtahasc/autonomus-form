@@ -623,6 +623,23 @@ class FormAnalyzer:
                         best_group_dist = dist
                         group_label = text
 
+            # 1.5. FAR ABOVE (Table Column Header)
+            elif ty2 <= y1 and (y1 - ty2) <= 400:
+                # Must overlap horizontally and align reasonably well
+                if tx1 < x2 and tx2 > x1:
+                    box_cx = (x1 + x2) / 2
+                    text_cx = (tx1 + tx2) / 2
+                    is_aligned = (
+                        abs(box_cx - text_cx) < 25 or
+                        abs(tx1 - x1) < 15 or
+                        abs(tx2 - x2) < 15
+                    )
+                    if is_aligned and is_valid_label(text):
+                        dist = (y1 - ty2) + 100  # Larger penalty so closer labels win
+                        if dist < best_group_dist:
+                            best_group_dist = dist
+                            group_label = text
+
             # 2. LEFT
             if tx2 <= x1 and (x1 - tx2) <= LEFT_MAX:
                 if abs(field_cy - text_cy) <= VERTICAL_BAND:
@@ -654,6 +671,15 @@ class FormAnalyzer:
                             adjusted_dist -= 40
                         if adjusted_dist < best_group_dist:
                             best_group_dist = adjusted_dist
+                            group_label = text
+
+            # 2.5 FAR LEFT (Table Row Header)
+            elif tx2 <= x1 and (x1 - tx2) <= 300:
+                if abs(field_cy - text_cy) <= VERTICAL_BAND:
+                    if is_valid_label(text):
+                        dist = (x1 - tx2) + 100 # Penalty
+                        if dist < best_group_dist:
+                            best_group_dist = dist
                             group_label = text
 
             # 3. RIGHT (option label for checkboxes)
